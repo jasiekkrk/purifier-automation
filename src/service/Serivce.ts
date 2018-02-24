@@ -6,9 +6,11 @@ import { DataOutput } from "../output/DataOutput";
 import DataProvider from "../providers/DataProvider";
 import ProportionalController from "../controller/ProportionalController";
 import ConsoleOutput from "../output/ConsoleOutput";
+import DummyPurifier from "../device/DummyPurifier";
+require('dotenv').config()
 
 const settings = {
-    ip: process.env.DEVICE_IP
+    ip: process.env.DEVICE_IP,
     name: process.env.DEVICE_NAME || 'default'
 }
 
@@ -25,7 +27,7 @@ export class Process {
     private devices: Purifier[]
 
     constructor(){
-        this.devices = [new MiioPurifier(settings)]
+        this.devices = [new DummyPurifier()]
         this.provider = new RestDataProvider(restSettings)
         this.controller = new ProportionalController(20)
         this.output = new ConsoleOutput()
@@ -74,7 +76,7 @@ export default class Service{
         this.process = new Process()
     }
 
-    private async doInterval() {
+    private doInterval = async () => {
         console.log('Runnin control loop step')
         try{
              await this.process.runControlStep()
@@ -94,8 +96,8 @@ export default class Service{
             return Promise.reject('No ip set')
         }
         await this.process.initProcess()
-
-        this.interval = setTimeout(this.doInterval, 5000)
+        console.log('Initialized')
+        this.interval = setTimeout(this.doInterval, 500)
     }
 
 }
