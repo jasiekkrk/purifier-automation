@@ -27,9 +27,9 @@ export class Process {
     private devices: Purifier[]
 
     constructor(){
-        this.devices = [new DummyPurifier()]
+        this.devices = [new MiioPurifier(settings)]
         this.provider = new RestDataProvider(restSettings)
-        this.controller = new ProportionalController(20)
+        this.controller = new ProportionalController(25)
         this.output = new ConsoleOutput()
     }
 
@@ -97,7 +97,7 @@ export default class Service{
         }
         await this.process.initProcess()
         console.log('Initialized')
-        this.interval = setTimeout(this.doInterval, 500)
+        this.interval = setTimeout(this.doInterval, 5000)
     }
 
 }
