@@ -1,5 +1,5 @@
 import Purifier from './device/Purifier';
-import { AirlyProvider } from './providers/airly';
+import { RestDataProvider } from './providers/airly';
 require('dotenv').config()
 
 const settings = {
@@ -17,7 +17,7 @@ if(!settings.ip) {
     process.exit(1)
 }
 
-const provider = new AirlyProvider(airilySettings)
+const provider = new RestDataProvider(airilySettings)
 
 const device = new Purifier(settings)
 device.connect().then(async () => {
