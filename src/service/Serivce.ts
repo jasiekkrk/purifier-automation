@@ -7,6 +7,7 @@ import DataProvider from "../providers/DataProvider";
 import ProportionalController from "../controller/ProportionalController";
 import ConsoleOutput from "../output/ConsoleOutput";
 import DummyPurifier from "../device/DummyPurifier";
+import NoopOutput from "../output/NoopOutput";
 require('dotenv').config()
 
 const settings = {
@@ -30,7 +31,7 @@ export class Process {
         this.devices = [new MiioPurifier(settings)]
         this.provider = new RestDataProvider(restSettings)
         this.controller = new ProportionalController(25)
-        this.output = new ConsoleOutput()
+        this.output = new NoopOutput()
     }
 
     async initProcess() {
