@@ -1,57 +1,25 @@
-const miio = require('miio');
-
-export interface PurifierSettings
-{
-    ip: string
+export interface Temperature{
+    value: number
+    unit: string
 }
-
-export default class Purifier
+export default interface Purifier
 {
-    private settings: PurifierSettings
-    constructor(settings: PurifierSettings){
-        this.settings = settings
-    }
-    device: any
-    async connect(){
-        this.device = await miio.device({ address: this.settings.ip })
-    }
+    name: string
 
-    async on(){
-        return this.device.setPower(true)
-    }
+    connect(): Promise<void>
 
-    async off(){
-        return this.device.setPower(false)
-    }
+    on(): Promise<void>
 
-    async powerStatus(){
-        return this.device.power()
-    }
+    off(): Promise<void>
 
-    async getTemperature(){
-        return this.device.temperature()
-    }
+    powerStatus(): Promise<boolean>
 
-    async getHumidity(){
-        return this.device.relativeHumidity()
-    }
+    getTemperature(): Promise<number>
 
-    async setFavourite()
-    {
-        return this.device.setMode('favorite')
-    }
+    getHumidity(): Promise<number>
 
-    async setSpeed(speed: number)
-    {
-        if(speed>16 || speed < 0) return Promise.reject('Speed must be between 0 and 16')
+    getAqui(): Promise<number>
 
-        const currentMode = await this.device.mode()
-        if(currentMode !== 'favorite')
-        {
-            console.log(currentMode)
-            await this.setFavourite()
-        }
-        return this.device.favoriteLevel(speed)
-    }
+    setSpeed(speed: number): Promise<void>
 
 }
