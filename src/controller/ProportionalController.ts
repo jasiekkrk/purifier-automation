@@ -2,7 +2,7 @@ import Controller from "./Controller";
 
 export default class ProportionalController implements Controller {
     private expectedValue: number
-    private mult = 6
+    private mult = 5
 
     constructor(expectedValue: number) {
         this.expectedValue = expectedValue
