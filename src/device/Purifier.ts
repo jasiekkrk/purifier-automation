@@ -22,4 +22,6 @@ export default interface Purifier
 
     setSpeed(speed: number): Promise<void>
 
+    auto(): Promise<void>
+
 }

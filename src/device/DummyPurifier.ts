@@ -29,4 +29,7 @@ export default class DummyPurifier implements Purifier {
     setSpeed(speed: number): Promise<void> {
         return Promise.resolve()
     }
+    auto(){
+        return Promise.resolve()
+    }
 }

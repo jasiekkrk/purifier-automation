@@ -1,4 +1,5 @@
 import DataProvider from "./DataProvider";
+import 'isomorphic-fetch'
 
 export interface RestDataProviderSettings{
     token: string
@@ -30,6 +31,7 @@ export class RestDataProvider implements DataProvider {
             console.log('No response from API')
             return 0
         }
+        console.log(`Outdoor level is ${responseBody.currentMeasurements.airQualityIndex}`)
         return Number(responseBody.currentMeasurements.airQualityIndex)
     }
 }
