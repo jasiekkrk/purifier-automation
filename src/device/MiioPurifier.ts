@@ -9,6 +9,8 @@ export interface PurifierSettings {
 
 export default class MiioPurifier implements Purifier {
     private settings: PurifierSettings
+    private currentSped?: number = undefined
+
     constructor(settings: PurifierSettings) {
         this.settings = settings
     }
@@ -18,29 +20,29 @@ export default class MiioPurifier implements Purifier {
     }
 
     async connect() {
+        console.log(`Trying to connect to ${this.settings.ip}`)
         this.device = await miio.device({ address: this.settings.ip })
+        console.log(`Trying to connect to ${this.settings.ip}`)
     }
 
     async on() {
-        try{
+        try {
             console.log(`Device ${this.name} will start`)
             await this.device.setPower(true)
             console.log(`Device ${this.name} is running`)
-        } 
-        catch(err)
-        {
+        }
+        catch (err) {
             console.log(err)
         }
     }
 
     async off() {
-        try{
+        try {
             console.log(`Device ${this.name} will shut down`)
             await this.device.setPower(false)
             console.log(`Device ${this.name} shut down`)
-        } 
-        catch(err)
-        {
+        }
+        catch (err) {
             console.log(err)
         }
     }
@@ -69,7 +71,10 @@ export default class MiioPurifier implements Purifier {
             console.log(currentMode)
             await this.setFavourite()
         }
-        return this.device.favoriteLevel(speed)
+        if (this.currentSped != speed) {
+            this.currentSped = speed
+            return this.device.favoriteLevel(speed)
+        }
     }
 
     async auto() {

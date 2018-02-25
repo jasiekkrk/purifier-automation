@@ -117,7 +117,7 @@ export default class Service {
     private checkPrecondition = async () => {
         try {
             const outdoorAqui = await this.provider.getAQI()
-            if (outdoorAqui > 40 || outdoorAqui == 0) {
+            if (outdoorAqui > 80 || outdoorAqui == 0) {
                 console.log('Starting due to high outdoor pollution')
                 await this.process.startDevices()
                 this.controlInterval = setTimeout(this.doInterval, 5000)
