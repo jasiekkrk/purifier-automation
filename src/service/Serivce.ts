@@ -23,7 +23,7 @@ const restSettings = {
 }
 
 export class Process {
-    dispose(): any {
+    async dispose() {
         if (!this.running) return
         const awaitable: Array<Promise<void>> = []
         for (const device of this.devices) {
@@ -34,7 +34,7 @@ export class Process {
     private controller: Controller
     private output: DataOutput
     private devices: Purifier[]
-    private running: false;
+    private running: boolean = false;
 
     constructor() {
         this.devices = [new MiioPurifier(settings)]
@@ -63,12 +63,11 @@ export class Process {
     }
 
     async stopDevices() {
-        if (!this.running) return
         const awaitable: Array<Promise<void>> = []
         for (const device of this.devices) {
             awaitable.push(device.off())
         }
-        return Promise.all(awaitable)
+        return Promise.all(awaitable).then(() => this.running = false)
     }
 
     async startDevices() {
@@ -77,7 +76,7 @@ export class Process {
         for (const device of this.devices) {
             awaitable.push(device.on())
         }
-        return Promise.all(awaitable)
+        return Promise.all(awaitable).then(() => this.running = true)
     }
 
     async runControlStep() {
@@ -118,7 +117,7 @@ export default class Service {
     private checkPrecondition = async () => {
         try {
             const outdoorAqui = await this.provider.getAQI()
-            if (outdoorAqui > 60 || outdoorAqui == 0) {
+            if (outdoorAqui > 40 || outdoorAqui == 0) {
                 console.log('Starting due to high outdoor pollution')
                 await this.process.startDevices()
                 this.controlInterval = setTimeout(this.doInterval, 5000)
@@ -135,11 +134,11 @@ export default class Service {
         this.preconditionInterval = setTimeout(this.checkPrecondition, preconditionIntervalTime)
     }
 
-    stop() {
+    async stop() {
         'Stopping service and unregistering devices'
         clearTimeout(this.controlInterval)
         clearInterval(this.preconditionInterval)
-        this.process.dispose()
+        return this.process.dispose()
     }
 
     async start() {

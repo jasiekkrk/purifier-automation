@@ -22,11 +22,27 @@ export default class MiioPurifier implements Purifier {
     }
 
     async on() {
-        return this.device.setPower(true)
+        try{
+            console.log(`Device ${this.name} will start`)
+            await this.device.setPower(true)
+            console.log(`Device ${this.name} is running`)
+        } 
+        catch(err)
+        {
+            console.log(err)
+        }
     }
 
     async off() {
-        return this.device.setPower(false)
+        try{
+            console.log(`Device ${this.name} will shut down`)
+            await this.device.setPower(false)
+            console.log(`Device ${this.name} shut down`)
+        } 
+        catch(err)
+        {
+            console.log(err)
+        }
     }
 
     async powerStatus() {
