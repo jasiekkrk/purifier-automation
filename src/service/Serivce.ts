@@ -24,12 +24,11 @@ const restSettings = {
 export class Process {
     private controller: Controller
     private output: DataOutput
-    private provider: DataProvider
     private devices: Purifier[]
+    private running: false;
 
     constructor(){
         this.devices = [new MiioPurifier(settings)]
-        this.provider = new RestDataProvider(restSettings)
         this.controller = new ProportionalController(25)
         this.output = new NoopOutput()
     }
@@ -54,6 +53,24 @@ export class Process {
         await this.output.exportData({...currentMeasurment, deviceid: device.name,  speed: newSpeed})
     }
 
+    async stopDevices(){
+        if(!this.running) return
+        const awaitable: Array<Promise<void>> = []
+        for(const device of this.devices){
+            awaitable.push(device.off())
+        }
+        return Promise.all(awaitable)
+    } 
+
+    async startDevices(){
+        if(this.running) return
+        const awaitable: Array<Promise<void>> = []
+        for(const device of this.devices){
+            awaitable.push(device.on())
+        }
+        return Promise.all(awaitable)
+    }
+
     async runControlStep() {
         const awaitable: Array<Promise<void>> = []
         for(const device of this.devices){
@@ -69,11 +86,13 @@ export class Process {
     }
 }
 export default class Service{
-   
-    private interval: number
+    private provider: RestDataProvider;
+    private preconditionInterval: number
+    private controlInterval: number
     private process: Process
 
     constructor(){
+        this.provider = new RestDataProvider(restSettings)
         this.process = new Process()
     }
 
@@ -88,8 +107,23 @@ export default class Service{
         setTimeout(this.doInterval, 5000)
     }
 
+    private checkPrecondition = async () => {
+        const outdoorAqui = await this.provider.getAQI()
+        if(outdoorAqui > 50 || outdoorAqui == 0){
+            await this.process.startDevices()
+            this.controlInterval = setTimeout(this.doInterval, 5000)
+        }
+        else
+        {
+            'Stopping devices due to low pollution'
+            clearTimeout(this.controlInterval)
+            await this.process.stopDevices()
+        }
+        
+    }
     stop(){
-        clearTimeout(this.interval)
+        clearTimeout(this.controlInterval)
+        clearInterval(this.preconditionInterval)
     }
 
     async start(){
@@ -98,7 +132,6 @@ export default class Service{
         }
         await this.process.initProcess()
         console.log('Initialized')
-        this.interval = setTimeout(this.doInterval, 5000)
+        this.preconditionInterval = setInterval(this.checkPrecondition, 5)
     }
-
 }
